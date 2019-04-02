@@ -30,8 +30,8 @@ module S3UpNow
       self.class_eval do
         attr_accessor "#{name}_s3_key"
 
-        before_validation "s3_upnow_copy_metadata_from_#{name}".to_sym, unless: "#{name}_s3_key.blank?"
-        after_save "s3_upnow_copy_file_from_#{name}".to_sym, unless: "#{name}_s3_key.blank?"
+        before_validation "s3_upnow_copy_metadata_from_#{name}".to_sym, unless: -> { "#{name}_s3_key.blank?" }
+        after_save "s3_upnow_copy_file_from_#{name}".to_sym, unless: -> { "#{name}_s3_key.blank?" } 
 
         private
 
@@ -48,7 +48,7 @@ module S3UpNow
           self.send "#{name}_file_name=", File.basename(instance_variable_get("@#{name}_s3_key"))
           self.send "#{name}_file_size=", s3_head.content_length
           self.send "#{name}_content_type=", s3_head.content_type
-          self.send "#{name}_updated_at=", s3_head.last_modified 
+          self.send "#{name}_updated_at=", s3_head.last_modified
         end
 
         define_method "s3_upnow_copy_file_from_#{name}" do
